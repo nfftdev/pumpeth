@@ -4,9 +4,9 @@ pragma solidity ^0.8.13;
 import {Test, console} from "forge-std/Test.sol";
 import {TokenFactory} from "../src/TokenFactory.sol";
 import {Token} from "../src/Token.sol";
-import {IUniswapV2Factory} from "@uniswap-v2-core-1.0.1/contracts/interfaces/IUniswapV2Factory.sol";
-import {IUniswapV2Pair} from "@uniswap-v2-core-1.0.1/contracts/interfaces/IUniswapV2Pair.sol";
-import {IUniswapV2Router01} from "@uniswap-v2-periphery-1.1.0-beta.0/contracts/interfaces/IUniswapV2Router01.sol";
+import "@uniswap-v2-core/contracts/interfaces/IUniswapV2Factory.sol";
+import "@uniswap-v2-core/contracts/interfaces/IUniswapV2Pair.sol";
+import "@uniswap-v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 
 contract TokenFactoryTest is Test {

@@ -2,13 +2,15 @@
 pragma solidity ^0.8.13;
 import {Token} from "./Token.sol";
 
-import {IUniswapV2Factory} from "@uniswap-v2-core-1.0.1/contracts/interfaces/IUniswapV2Factory.sol";
-import {IUniswapV2Pair} from "@uniswap-v2-core-1.0.1/contracts/interfaces/IUniswapV2Pair.sol";
-import {IUniswapV2Router01} from "@uniswap-v2-periphery-1.1.0-beta.0/contracts/interfaces/IUniswapV2Router01.sol";
-import {Clones} from "@openzeppelin-contracts-5.0.2/proxy/Clones.sol";
+import "@uniswap-v2-core/contracts/interfaces/IUniswapV2Factory.sol";
+import "@uniswap-v2-core/contracts/interfaces/IUniswapV2Pair.sol";
+import "@uniswap-v2-periphery/contracts/interfaces/IUniswapV2Router01.sol";
+import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {BondingCurve} from "./BondingCurve.sol";
 
-contract TokenFactory is BondingCurve {
+
+contract TokenFactory is BondingCurve, ReentrancyGuard {
     enum TokenState {
         NOT_CREATED,
         FUNDING,
@@ -24,10 +26,15 @@ contract TokenFactory is BondingCurve {
     mapping(address => uint256) public collateral;
     address public immutable tokenImplementation;
 
-    address public constant UNISWAP_V2_FACTORY =
-        0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
-    address public constant UNISWAP_V2_ROUTER =
-        0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+    // ETHEREUM
+    // address public constant UNISWAP_V2_FACTORY =
+    //     0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    // address public constant UNISWAP_V2_ROUTER =
+    //     0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+
+    // POLYGON MAINNET
+    address public constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    address public constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
     constructor(address _tokenImplementation) {
         tokenImplementation = _tokenImplementation;
@@ -44,13 +51,13 @@ contract TokenFactory is BondingCurve {
         return tokenAddress;
     }
 
-    function buy(address tokenAddress) external payable {
+    function buy(address tokenAddress) external payable nonReentrant{
         require(tokens[tokenAddress] == TokenState.FUNDING, "Token not found");
         require(msg.value > 0, "ETH not enough");
         Token token = Token(tokenAddress);
         uint256 valueToBuy = msg.value;
         // TODO: convert collateral[tokenAddress] to memory
-        // TODO: Add reentrancy check
+
         if(collateral[tokenAddress] + valueToBuy > FUNDING_GOAL) {
             valueToBuy = FUNDING_GOAL - collateral[tokenAddress];
         }
@@ -90,18 +97,22 @@ contract TokenFactory is BondingCurve {
         require(success, "ETH send failed");
     }
 
-    // TODO: Bonding curve
     function calculateBuyReturn(
+        address tokenAddress,
         uint256 ethAmount
-    ) public pure returns (uint256) {
-        return (ethAmount * FUNDING_SUPPLY) / FUNDING_GOAL;
+    ) public view returns (uint256) {
+        Token token = Token(tokenAddress);
+        uint256 amount = getAmountOut(a, b, token.totalSupply(), ethAmount);
+        return amount;
     }
 
-    // TODO: Bonding curve
     function calculateSellReturn(
+        address tokenAddress,
         uint256 tokenAmount
-    ) public pure returns (uint256) {
-        return (tokenAmount * FUNDING_GOAL) / FUNDING_SUPPLY;
+    ) public view returns (uint256) {
+        Token token = Token(tokenAddress);
+        uint256 receivedETH = getFundsNeeded(a, b, token.totalSupply(), tokenAmount);
+        return receivedETH;
     }
 
     function createLiquilityPool(

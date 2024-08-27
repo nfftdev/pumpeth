@@ -2,15 +2,19 @@
 src = "src"
 out = "out"
 libs = ["lib"]
-
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
-
-[dependencies]
-"@openzeppelin-contracts" = { version = "5.0.2" }
-"@uniswap-v2-core" = { version = "1.0.1" }
-"@uniswap-v2-periphery" = { version = "1.1.0-beta.0" }
-"@openzeppelin-contracts-upgradeable" = { version = "5.0.2" }
-solady = { version = "0.0.233" }
+remappings = [
+    "@openzeppelin/=lib/openzeppelin-contracts/",
+    "@openzeppelin-contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/",
+    "@uniswap-v2-core/=lib/v2-core/",
+    "@uniswap-v2-periphery/=lib/v2-periphery/",
+    "solady/=lib/solady/"
+]
 
 [rpc_endpoints]
 mainnet = "https://rpc.mevblocker.io"
+polygon = "${POLYGON_RPC_URL}"
+polygon_amoy = "${POLYGON_AMOY_RPC_URL}"
+sepolia = "${SEPOLIA_RPC_URL}"
+
+[etherscan]
+polygon_amoy = { key = "${POLYGONSCAN_API_KEY}" }
