@@ -6,19 +6,27 @@ import "../src/TokenFactory.sol";
 
 contract CreateAToken is Script {
     function run() external {
-        address factoryAddress = 0x183dfbd4e3880457Bed73D143fBeaFa24d234531;
+        address factoryAddress = 0x123F263A89AcbB9a16a2fbBC0Cc4c5dDdE7D826f;
         TokenFactory factory = TokenFactory(factoryAddress);
 
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
         // Interact with your contract
-        address newToken = factory.createToken("GSecond", "GSCND");
+        address newToken = factory.createToken("Trade1", "TRADE1");
         console.log("New token created at:", newToken);
 
         vm.stopBroadcast();
     }
 }
-
+////forge script script/CreateAToken.s.sol:CreateAToken --rpc-url $POLYGON_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
 //forge script script/CreateAToken.s.sol:CreateAToken --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
-//forge script script/CreateAToken.s.sol:CreateAToken --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 --gas-report -vvvv
+//forge script script/CreateAToken.s.sol:CreateAToken --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 --gas-price -vvvv
+// CLAUDE TEST1: 0xFFd7025BBDa884f960EbDe73b963Ccb18DC5Ce36
+// CLAUDE TEST2: 0x92e62e1A6005dF37438333755bB8E9B74fC57dD7
+// CLAUDE TEST2: 0x88D95f11fDC3Ced7EBff7D1ada53De26d3202E9A
+// From Param Finder: 0x7d9BD2FFF3C6be43F86fc9B434D2f07816DC1776
+
+
+// AMOY TESTING
+// forge script script/CreateAToken.s.sol:CreateAToken --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv

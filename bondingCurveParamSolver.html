@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Bonding Curve Solver</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.2.1/decimal.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        input { margin: 5px 0; width: 300px; }
+        #result { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Custom Bonding Curve Solver</h1>
+    <p>Find values of <strong>a</strong> and <strong>b</strong> that satisfy the following:</p>
+    <ul>
+        <li>0.06 ETH purchases approximately 1 million tokens when X0 = 0 ETH.</li>
+        <li>0.06 ETH purchases approximately 142,857 tokens when X0 = 22 ETH.</li>
+    </ul>
+
+    <div>
+        <label for="targetTokens1">Target Tokens (X0 = 0):</label>
+        <input type="text" id="targetTokens1" value="1000000">
+    </div>
+    <div>
+        <label for="targetTokens2">Target Tokens (X0 = 22):</label>
+        <input type="text" id="targetTokens2" value="142857">
+    </div>
+    <div>
+        <label for="deltaY">ETH Spent (deltaY):</label>
+        <input type="text" id="deltaY" value="0.06">
+    </div>
+    <button onclick="customSolve()">Find Best Fit</button>
+
+    <h2>Results:</h2>
+    <p id="output"></p>
+
+    <script>
+        const WAD = new Decimal('1e18');
+
+        function customGetAmountOut(a, b, x0, deltaY) {
+            const linearTerm = deltaY.div(a.add(x0.div(WAD)));  // Linear part for early stage
+            const exponentialTerm = Decimal.exp(b.mul(x0).div(WAD)).mul(deltaY).div(WAD);  // Exponential for late stage
+
+            const deltaX = linearTerm.mul(exponentialTerm);  // Combine both effects
+            return deltaX.gt(0) ? deltaX : new Decimal(0);
+        }
+
+        function customSolve() {
+            const targetTokens1 = new Decimal(document.getElementById('targetTokens1').value);
+            const targetTokens2 = new Decimal(document.getElementById('targetTokens2').value);
+            const deltaY = new Decimal(document.getElementById('deltaY').value).mul(WAD);
+            const X0_1 = new Decimal(0);  // X0 when it is 0 ETH
+            const X0_2 = new Decimal(22).mul(WAD); // X0 when it is 22 ETH
+
+            let bestA = null;
+            let bestB = null;
+            let bestError = Infinity;
+
+            // Test a range of values for a and b
+            for (let logA = -18; logA <= 0; logA += 0.1) {
+                for (let logB = -18; logB <= 0; logB += 0.1) {
+                    const a = Decimal.pow(10, logA).mul(WAD);
+                    const b = Decimal.pow(10, logB).mul(WAD);
+
+                    const deltaX1 = customGetAmountOut(a, b, X0_1, deltaY);
+                    const deltaX2 = customGetAmountOut(a, b, X0_2, deltaY);
+
+                    if (deltaX1.isNaN() || deltaX2.isNaN()) {
+                        continue;  // Skip invalid results
+                    }
+
+                    const error = targetTokens1.sub(deltaX1.div(WAD)).abs().add(targetTokens2.sub(deltaX2.div(WAD)).abs());
+
+                    if (error.lt(bestError)) {
+                        bestError = error;
+                        bestA = a;
+                        bestB = b;
+                    }
+                }
+            }
+
+            if (bestError === Infinity) {
+                document.getElementById('output').innerText = "Failed to find a valid solution. Please adjust parameters.";
+            } else {
+                document.getElementById('output').innerText = `Best fit found with a: ${bestA.toExponential(10)}, b: ${bestB.toExponential(10)}, error: ${bestError.toFixed(6)}`;
+            }
+        }
+    </script>
+</body>
+</html>

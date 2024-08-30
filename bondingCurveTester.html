@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonding Curve Calculator with Graph</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.2.1/decimal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        input { margin: 5px 0; width: 300px; }
+        #result { margin-top: 20px; font-weight: bold; }
+        #chartContainer { width: 100%; height: 400px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Bonding Curve Calculator with Graph</h1>
+    <div>
+        <label for="a">a (in wei):</label>
+        <input type="text" id="a" value="1000000000000000">
+    </div>
+    <div>
+        <label for="b">b (in wei):</label>
+        <input type="text" id="b" value="28000000000000">
+    </div>
+    <div>
+        <label for="x0">x0 (Total Supply in wei):</label>
+        <input type="text" id="x0" value="0">
+    </div>
+    <div>
+        <label for="deltaY">deltaY (ETH spent in wei):</label>
+        <input type="text" id="deltaY" value="330000000000000000000">
+    </div>
+    <button onclick="calculate()">Calculate</button>
+    <div id="result"></div>
+    <div id="chartContainer">
+        <canvas id="bondingCurveChart"></canvas>
+    </div>
+    <script>
+        const WAD = new Decimal('1e18');
+        let bondingCurveChart;
+        
+        function expWad(x) {
+            x = new Decimal(x).div(WAD);
+            const result = Decimal.exp(x).mul(WAD).floor();
+            return result;
+        }
+        function lnWad(x) {
+            x = new Decimal(x).div(WAD);
+            const result = Decimal.ln(x).mul(WAD).floor();
+            return result;
+        }
+        function mulWad(x, y) {
+            return new Decimal(x).mul(y).div(WAD).floor();
+        }
+        function divWad(x, y) {
+            return new Decimal(x).mul(WAD).div(y).floor();
+        }
+        function getAmountOut(a, b, x0, deltaY) {
+            const exp_b_x0 = expWad(mulWad(b, x0));
+            const exp_b_x1 = exp_b_x0.add(mulWad(deltaY, divWad(b, a)));
+            const deltaX = divWad(lnWad(exp_b_x1), b).sub(x0);
+            return deltaX.gt(0) ? deltaX : new Decimal(0);
+        }
+        function calculate() {
+            const a = document.getElementById('a').value;
+            const b = document.getElementById('b').value;
+            const x0 = document.getElementById('x0').value;
+            const deltaY = document.getElementById('deltaY').value;
+            try {
+                const result = getAmountOut(a, b, x0, deltaY);
+                document.getElementById('result').innerText = `Tokens received: ${result.div(WAD).toFixed(18)} ETH`;
+                updateChart(a, b, x0);
+            } catch (error) {
+                document.getElementById('result').innerText = `Error: ${error.message}`;
+            }
+        }
+        function updateChart(a, b, x0) {
+            const deltaYValues = [];
+            const tokenOutValues = [];
+            for (let i = 0; i <= 100; i++) {
+                const deltaY = new Decimal(131680).sub(330).mul(i).div(100).add(330).mul(WAD);
+                const tokenOut = getAmountOut(a, b, x0, deltaY.toString());
+                deltaYValues.push(deltaY.div(WAD).toNumber());
+                tokenOutValues.push(tokenOut.div(WAD).toNumber());
+            }
+            
+            if (bondingCurveChart) {
+                bondingCurveChart.destroy();
+            }
+            
+            const ctx = document.getElementById('bondingCurveChart').getContext('2d');
+            bondingCurveChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: deltaYValues,
+                    datasets: [{
+                        label: 'Tokens Out',
+                        data: tokenOutValues,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'ETH Spent (ETH)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Tokens Received (ETH)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Initial calculation and chart rendering
+        calculate();
+    </script>
+</body>
+</html>

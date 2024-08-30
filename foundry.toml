@@ -17,4 +17,5 @@ polygon_amoy = "${POLYGON_AMOY_RPC_URL}"
 sepolia = "${SEPOLIA_RPC_URL}"
 
 [etherscan]
+polygon = { key = "${POLYGONSCAN_API_KEY}" }
 polygon_amoy = { key = "${POLYGONSCAN_API_KEY}" }

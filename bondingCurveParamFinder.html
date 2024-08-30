@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonding Curve Calculator with Parameter Finder</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.2.1/decimal.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        input, button { margin: 5px 0; width: 300px; }
+        #result, #optimalParams { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Bonding Curve Calculator with Parameter Finder</h1>
+    <div>
+        <label for="a">a (in wei):</label>
+        <input type="text" id="a" value="10000000000000">
+    </div>
+    <div>
+        <label for="b">b (in wei):</label>
+        <input type="text" id="b" value="100000000">
+    </div>
+    <div>
+        <label for="x0">x0 (Total Supply in wei):</label>
+        <input type="text" id="x0" value="0">
+    </div>
+    <div>
+        <label for="deltaY">deltaY (ETH spent in wei):</label>
+        <input type="text" id="deltaY" value="330000000000000000000">
+    </div>
+    <button onclick="calculate()">Calculate</button>
+    <div id="result"></div>
+    
+    <h2>Parameter Finder</h2>
+    <div>
+        <label for="targetStart">Target Start Tokens (in millions):</label>
+        <input type="number" id="targetStart" value="30">
+    </div>
+    <div>
+        <label for="targetEnd">Target End Tokens (in millions):</label>
+        <input type="number" id="targetEnd" value="8000">
+    </div>
+    <button onclick="findOptimalParams()">Find Optimal a and b</button>
+    <div id="optimalParams"></div>
+    
+    <script>
+        const WAD = new Decimal('1e18');
+        
+        function expWad(x) {
+            x = new Decimal(x).div(WAD);
+            const result = Decimal.exp(x).mul(WAD).floor();
+            return result;
+        }
+        function lnWad(x) {
+            x = new Decimal(x).div(WAD);
+            const result = Decimal.ln(x).mul(WAD).floor();
+            return result;
+        }
+        function mulWad(x, y) {
+            return new Decimal(x).mul(y).div(WAD).floor();
+        }
+        function divWad(x, y) {
+            return new Decimal(x).mul(WAD).div(y).floor();
+        }
+        function getAmountOut(a, b, x0, deltaY) {
+            const exp_b_x0 = expWad(mulWad(b, x0));
+            const exp_b_x1 = exp_b_x0.add(mulWad(deltaY, divWad(b, a)));
+            const deltaX = divWad(lnWad(exp_b_x1), b).sub(x0);
+            return deltaX.gt(0) ? deltaX : new Decimal(0);
+        }
+        function calculate() {
+            const a = document.getElementById('a').value;
+            const b = document.getElementById('b').value;
+            const x0 = document.getElementById('x0').value;
+            const deltaY = document.getElementById('deltaY').value;
+            try {
+                const result = getAmountOut(a, b, x0, deltaY);
+                document.getElementById('result').innerText = `Tokens received: ${result.div(WAD).toFixed(6)} ETH`;
+            } catch (error) {
+                document.getElementById('result').innerText = `Error: ${error.message}`;
+            }
+        }
+
+        function findOptimalParams() {
+            const x0 = new Decimal(document.getElementById('x0').value);
+            const startY = new Decimal('330').mul(WAD);
+            const endY = new Decimal('131680').mul(WAD);
+            const targetStart = new Decimal(document.getElementById('targetStart').value).mul(1e6).mul(WAD);
+            const targetEnd = new Decimal(document.getElementById('targetEnd').value).mul(1e6).mul(WAD);
+
+            let bestA = new Decimal(0);
+            let bestB = new Decimal(0);
+            let bestError = new Decimal(Infinity);
+
+            for (let aExp = 12; aExp <= 18; aExp++) {
+                for (let bExp = 7; bExp <= 13; bExp++) {
+                    const a = new Decimal(10).pow(aExp);
+                    const b = new Decimal(10).pow(bExp);
+
+                    const startTokens = getAmountOut(a, b, x0, startY);
+                    const endTokens = getAmountOut(a, b, x0, endY);
+
+                    const startError = targetStart.sub(startTokens).abs().div(targetStart);
+                    const endError = targetEnd.sub(endTokens).abs().div(targetEnd);
+                    const totalError = startError.add(endError);
+
+                    if (totalError.lt(bestError)) {
+                        bestError = totalError;
+                        bestA = a;
+                        bestB = b;
+                    }
+                }
+            }
+
+            document.getElementById('a').value = bestA.toFixed(0);
+            document.getElementById('b').value = bestB.toFixed(0);
+            
+            const startTokens = getAmountOut(bestA, bestB, x0, startY);
+            const endTokens = getAmountOut(bestA, bestB, x0, endY);
+            
+            document.getElementById('optimalParams').innerHTML = `Optimal parameters found:<br>
+                a = ${bestA.toFixed(0)}<br>
+                b = ${bestB.toFixed(0)}<br>
+                Start tokens: ${startTokens.div(WAD).toFixed(2)} million<br>
+                End tokens: ${endTokens.div(WAD).toFixed(2)} million`;
+        }
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>

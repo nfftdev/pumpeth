@@ -19,9 +19,28 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
     uint256 public constant MAX_SUPPLY = 10 ** 9 * 10 ** 18;
     uint256 public constant INITIAL_SUPPLY = (MAX_SUPPLY * 1) / 5;
     uint256 public constant FUNDING_SUPPLY = (MAX_SUPPLY * 4) / 5;
-    uint256 public constant FUNDING_GOAL = 20 ether;
-    uint256 public constant a = 16319324419;
-    uint256 public constant b = 1000000000;
+    uint256 public constant FUNDING_GOAL = 0.01 ether;
+    //uint256 public constant FUNDING_GOAL = 20 ether;
+
+    // CLAUDE RECOMMENDATION FOR ETH
+    // uint256 public constant a = 1615000000000000;
+    // uint256 public constant b = 1000000000000000;
+
+    // CLAUDE RECOMMENDATION FOR MATIC TEST 1 (WAS WAY OFF giving 30 tokens instead of 30m tokens for 330 MATIC)
+    // uint256 public constant a = 8970000000000000000;
+    // uint256 public constant b = 1000000000000000;
+    // CLAUDE RECOMMENDATION FOR MATIC TEST 2
+    // uint256 a = 4930000000000;
+    // uint256 b = 100000000000;
+    // CLAUDE RECOMMENDATION FOR MATIC TEST 3
+    // uint256 a = 1000000000000000;
+    // uint256 b = 28000000000000;
+    // USING THE GRAPHING SIMULATOR WITH MATIC LOOKING GOOD 60000000000000000
+    uint256 a = 10000000000000;
+    uint256 b = 100000000;
+    // ORIGINAL SETTINGS
+    // uint256 public constant a = 16319324419;
+    // uint256 public constant b = 1000000000;
     mapping(address => TokenState) public tokens;
     mapping(address => uint256) public collateral;
     address public immutable tokenImplementation;
@@ -33,8 +52,14 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
     //     0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
     // POLYGON MAINNET
-    address public constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
-    address public constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+    // address public constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    // address public constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+
+    // POLYGON AMOY
+    address public constant UNISWAP_V2_FACTORY = 0xeD04530614eA831d407bD916aF0625FC0B17f062;
+    address public constant UNISWAP_V2_ROUTER = 0x6a4e354aFa1075fE98771a72fa85F4F003006242;
+    // address public constant UNISWAP_V2_WETH9 = 0x74d5ce5FD66dEc4C37B098De6689b5dE3D66976F
+    // address public constant UNISWAP_V2_MULTICALL = 0x7F84740a2CA47b1b42EcACd1aA063900669bb272
 
     constructor(address _tokenImplementation) {
         tokenImplementation = _tokenImplementation;

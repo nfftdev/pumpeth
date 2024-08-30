@@ -25,3 +25,27 @@ contract DeployTokenFactory is Script {
         vm.stopBroadcast();
     }
 }
+//forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $POLYGON_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
+// == Logs ==
+//   Token implementation deployed at: 0xb123d9872fbBCd0a15ff63F78fD14e226183C4E6
+//   TokenFactory deployed at: 0x72Bb5e8c5FE4aAbE11F4f80014DE36C1129c53b2
+// TESTING CLAUDE MATIC SETTINGS1
+// uint256 public constant a = 8970000000000000000;
+// uint256 public constant b = 1000000000000000;
+//   Token implementation deployed at: 0x7Eeb1CC50D80A1db5f215c60Dc59793D17cF4374
+//   TokenFactory deployed at: 0xE9F04f0d22B239032C1C491F68a820fE620D911F
+// TEST CLAUDE 2
+// Token implementation deployed at: 0xD3Ec944a057FD25Bc5BEC45F86F791301cF7B4e9
+//   TokenFactory deployed at: 0x81790689F668c4e87aCf65E7790e1e4d884D5bFD
+// TEST CLAUDE 3
+//   Token implementation deployed at: 0xA8BA3649fc8C96F72F62C77d59Cc1b2F443Db68d
+//   TokenFactory deployed at: 0x28b9B7aab3aD05c2009B2Aca6C3532A4171bC2E3
+// USING THE PARAM CURVE FINDER
+//  Token implementation deployed at: 0xcc1fCBbD537e411154c61340E81B6C971805c499
+//  TokenFactory deployed at: 0x2E470997CAc6cA04674C8C59E4c51BbEBcF22E83
+
+
+// AMOY TESING
+// forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
+// Token implementation deployed at: 0xb638314b89538E85A2ec01a02921F0598B22c7A3
+// TokenFactory deployed at: 0x123F263A89AcbB9a16a2fbBC0Cc4c5dDdE7D826f

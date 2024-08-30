@@ -1,0 +1,39 @@
+{
+  "transactions": [
+    {
+      "hash": "0x0b75888c42fa92adcf61a3a69f4c7d319c68657238160888690d303d86e687b2",
+      "transactionType": "CALL",
+      "contractName": null,
+      "contractAddress": "0x2e470997cac6ca04674c8c59e4c51bbebcf22e83",
+      "function": "createToken(string,string)",
+      "arguments": [
+        "Claude1",
+        "CDE1"
+      ],
+      "transaction": {
+        "from": "0xf51f97a20c4e00fd4d8f85462cf344bb152b10a3",
+        "to": "0x2e470997cac6ca04674c8c59e4c51bbebcf22e83",
+        "gas": "0x3d91d",
+        "value": "0x0",
+        "input": "0x2f2f2d56000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000007436c61756465310000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000044344453100000000000000000000000000000000000000000000000000000000",
+        "nonce": "0x5f3",
+        "chainId": "0x89"
+      },
+      "additionalContracts": [
+        {
+          "transactionType": "CREATE",
+          "address": "0x7d9bd2fff3c6be43f86fc9b434d2f07816dc1776",
+          "initCode": "0x3d602d80600a3d3981f3363d3d373d3d3d363d73cc1fcbbd537e411154c61340e81b6c971805c4995af43d82803e903d91602b57fd5bf3"
+        }
+      ],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [],
+  "libraries": [],
+  "pending": [],
+  "returns": {},
+  "timestamp": 1724906516,
+  "chain": 137,
+  "commit": "c1ea02c"
+}
