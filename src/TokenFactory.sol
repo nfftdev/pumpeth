@@ -7,10 +7,12 @@ import "@uniswap-v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import "@uniswap-v2-periphery/contracts/interfaces/IUniswapV2Router01.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import {BondingCurve} from "./BondingCurve.sol";
+// import {BondingCurve} from "./BondingCurve.sol";
+import {BancorFormula} from "./BancorFormula.sol";
 
 
-contract TokenFactory is BondingCurve, ReentrancyGuard {
+// contract TokenFactory is BondingCurve, ReentrancyGuard {
+contract TokenFactory is BancorFormula, ReentrancyGuard {
     enum TokenState {
         NOT_CREATED,
         FUNDING,
@@ -36,11 +38,12 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
     // uint256 a = 1000000000000000;
     // uint256 b = 28000000000000;
     // USING THE GRAPHING SIMULATOR WITH MATIC LOOKING GOOD 60000000000000000
-    uint256 a = 10000000000000;
-    uint256 b = 100000000;
+    // uint256 a = 10000000000000;
+    // uint256 b = 100000000;
     // ORIGINAL SETTINGS
     // uint256 public constant a = 16319324419;
     // uint256 public constant b = 1000000000;
+    uint32 reserveRatio;
     mapping(address => TokenState) public tokens;
     mapping(address => uint256) public collateral;
     address public immutable tokenImplementation;
@@ -61,8 +64,9 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
     // address public constant UNISWAP_V2_WETH9 = 0x74d5ce5FD66dEc4C37B098De6689b5dE3D66976F
     // address public constant UNISWAP_V2_MULTICALL = 0x7F84740a2CA47b1b42EcACd1aA063900669bb272
 
-    constructor(address _tokenImplementation) {
+    constructor(address _tokenImplementation, uint32 _reserveRatio) {
         tokenImplementation = _tokenImplementation;
+        reserveRatio = _reserveRatio;
     }
 
     function createToken(
@@ -80,16 +84,24 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
         require(tokens[tokenAddress] == TokenState.FUNDING, "Token not found");
         require(msg.value > 0, "ETH not enough");
         Token token = Token(tokenAddress);
-        uint256 valueToBuy = msg.value;
+        uint256 amount = calculatePurchaseReturn(
+            token.totalSupply(),
+            collateral[tokenAddress],
+            reserveRatio,
+            msg.value
+        );
+        uint256 availableSupply = MAX_SUPPLY - token.totalSupply();
+        // uint256 valueToBuy = msg.value;
         // TODO: convert collateral[tokenAddress] to memory
 
-        if(collateral[tokenAddress] + valueToBuy > FUNDING_GOAL) {
-            valueToBuy = FUNDING_GOAL - collateral[tokenAddress];
-        }
-        uint256 amount = getAmountOut(a, b, token.totalSupply(), valueToBuy);
-        uint256 availableSupply = FUNDING_SUPPLY - token.totalSupply();
+        // if(collateral[tokenAddress] + valueToBuy > FUNDING_GOAL) {
+        //     valueToBuy = FUNDING_GOAL - collateral[tokenAddress];
+        // }
+        // uint256 amount = getAmountOut(a, b, token.totalSupply(), valueToBuy);
+        // uint256 availableSupply = FUNDING_SUPPLY - token.totalSupply();
         require(amount <= availableSupply, "Token not enough");
-        collateral[tokenAddress] += valueToBuy;
+        collateral[tokenAddress] += msg.value;
+        // collateral[tokenAddress] += valueToBuy;
         token.mint(msg.sender, amount);
         // when reach FUNDING_GOAL
         if (collateral[tokenAddress] >= FUNDING_GOAL) {
@@ -104,10 +116,10 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
             collateral[tokenAddress] = 0;
             tokens[tokenAddress] = TokenState.TRADING;
         }
-        if (valueToBuy < msg.value) {
-            (bool success, ) = msg.sender.call{value: msg.value-valueToBuy}(new bytes(0));
-            require(success, "ETH send failed");
-        }
+        // if (valueToBuy < msg.value) {
+        //     (bool success, ) = msg.sender.call{value: msg.value-valueToBuy}(new bytes(0));
+        //     require(success, "ETH send failed");
+        // }
     }
 
     function sell(address tokenAddress, uint256 amount) external {
@@ -115,7 +127,13 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
         require(amount > 0, "Token not enough");
         Token token = Token(tokenAddress);
         token.burn(msg.sender, amount);
-        uint256 receivedETH = getFundsNeeded(a, b, token.totalSupply(), amount);
+        uint256 receivedETH = calculateSaleReturn(
+            token.totalSupply(),
+            collateral[tokenAddress],
+            reserveRatio,
+            amount
+        );
+        // uint256 receivedETH = getFundsNeeded(a, b, token.totalSupply(), amount);
         collateral[tokenAddress] -= receivedETH;
         // send ether
         (bool success, ) = msg.sender.call{value: receivedETH}(new bytes(0));
@@ -127,7 +145,13 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
         uint256 ethAmount
     ) public view returns (uint256) {
         Token token = Token(tokenAddress);
-        uint256 amount = getAmountOut(a, b, token.totalSupply(), ethAmount);
+        uint256 amount = calculatePurchaseReturn(
+            token.totalSupply(),
+            collateral[tokenAddress],
+            reserveRatio,
+            ethAmount
+        );
+        // uint256 amount = getAmountOut(a, b, token.totalSupply(), ethAmount);
         return amount;
     }
 
@@ -136,7 +160,13 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
         uint256 tokenAmount
     ) public view returns (uint256) {
         Token token = Token(tokenAddress);
-        uint256 receivedETH = getFundsNeeded(a, b, token.totalSupply(), tokenAmount);
+        uint256 receivedETH = calculateSaleReturn(
+            token.totalSupply(),
+            collateral[tokenAddress],
+            reserveRatio,
+            tokenAmount
+        );
+        // uint256 receivedETH = getFundsNeeded(a, b, token.totalSupply(), tokenAmount);
         return receivedETH;
     }
 
