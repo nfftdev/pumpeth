@@ -6,14 +6,14 @@ import "../src/TokenFactory.sol";
 
 contract CreateAToken is Script {
     function run() external {
-        address factoryAddress = 0x123F263A89AcbB9a16a2fbBC0Cc4c5dDdE7D826f;
+        address factoryAddress = 0xa876aC551540d8c21F575ef2EBCe582c82d0E294;
         TokenFactory factory = TokenFactory(factoryAddress);
 
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
         // Interact with your contract
-        address newToken = factory.createToken("Trade1", "TRADE1");
+        address newToken = factory.createToken("Trade5", "TRADE5");
         console.log("New token created at:", newToken);
 
         vm.stopBroadcast();
@@ -29,4 +29,7 @@ contract CreateAToken is Script {
 
 
 // AMOY TESTING
+// forge script script/CreateAToken.s.sol:CreateAToken --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
+
+// AMOY TESTING WITH BANCOR
 // forge script script/CreateAToken.s.sol:CreateAToken --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv

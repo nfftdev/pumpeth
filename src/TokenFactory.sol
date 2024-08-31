@@ -7,11 +7,9 @@ import "@uniswap-v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import "@uniswap-v2-periphery/contracts/interfaces/IUniswapV2Router01.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-// import {BondingCurve} from "./BondingCurve.sol";
 import {BancorFormula} from "./BancorFormula.sol";
 
 
-// contract TokenFactory is BondingCurve, ReentrancyGuard {
 contract TokenFactory is BancorFormula, ReentrancyGuard {
     enum TokenState {
         NOT_CREATED,
@@ -22,27 +20,6 @@ contract TokenFactory is BancorFormula, ReentrancyGuard {
     uint256 public constant INITIAL_SUPPLY = (MAX_SUPPLY * 1) / 5;
     uint256 public constant FUNDING_SUPPLY = (MAX_SUPPLY * 4) / 5;
     uint256 public constant FUNDING_GOAL = 0.01 ether;
-    //uint256 public constant FUNDING_GOAL = 20 ether;
-
-    // CLAUDE RECOMMENDATION FOR ETH
-    // uint256 public constant a = 1615000000000000;
-    // uint256 public constant b = 1000000000000000;
-
-    // CLAUDE RECOMMENDATION FOR MATIC TEST 1 (WAS WAY OFF giving 30 tokens instead of 30m tokens for 330 MATIC)
-    // uint256 public constant a = 8970000000000000000;
-    // uint256 public constant b = 1000000000000000;
-    // CLAUDE RECOMMENDATION FOR MATIC TEST 2
-    // uint256 a = 4930000000000;
-    // uint256 b = 100000000000;
-    // CLAUDE RECOMMENDATION FOR MATIC TEST 3
-    // uint256 a = 1000000000000000;
-    // uint256 b = 28000000000000;
-    // USING THE GRAPHING SIMULATOR WITH MATIC LOOKING GOOD 60000000000000000
-    // uint256 a = 10000000000000;
-    // uint256 b = 100000000;
-    // ORIGINAL SETTINGS
-    // uint256 public constant a = 16319324419;
-    // uint256 public constant b = 1000000000;
     uint32 reserveRatio;
     mapping(address => TokenState) public tokens;
     mapping(address => uint256) public collateral;
@@ -75,8 +52,9 @@ contract TokenFactory is BancorFormula, ReentrancyGuard {
     ) public returns (address) {
         address tokenAddress = Clones.clone(tokenImplementation);
         Token token = Token(tokenAddress);
-        token.initialize(name, symbol);
+        token.initialize(name, symbol, 1);
         tokens[tokenAddress] = TokenState.FUNDING;
+        collateral[tokenAddress] = 1;
         return tokenAddress;
     }
 
@@ -91,17 +69,8 @@ contract TokenFactory is BancorFormula, ReentrancyGuard {
             msg.value
         );
         uint256 availableSupply = MAX_SUPPLY - token.totalSupply();
-        // uint256 valueToBuy = msg.value;
-        // TODO: convert collateral[tokenAddress] to memory
-
-        // if(collateral[tokenAddress] + valueToBuy > FUNDING_GOAL) {
-        //     valueToBuy = FUNDING_GOAL - collateral[tokenAddress];
-        // }
-        // uint256 amount = getAmountOut(a, b, token.totalSupply(), valueToBuy);
-        // uint256 availableSupply = FUNDING_SUPPLY - token.totalSupply();
         require(amount <= availableSupply, "Token not enough");
         collateral[tokenAddress] += msg.value;
-        // collateral[tokenAddress] += valueToBuy;
         token.mint(msg.sender, amount);
         // when reach FUNDING_GOAL
         if (collateral[tokenAddress] >= FUNDING_GOAL) {
@@ -116,10 +85,6 @@ contract TokenFactory is BancorFormula, ReentrancyGuard {
             collateral[tokenAddress] = 0;
             tokens[tokenAddress] = TokenState.TRADING;
         }
-        // if (valueToBuy < msg.value) {
-        //     (bool success, ) = msg.sender.call{value: msg.value-valueToBuy}(new bytes(0));
-        //     require(success, "ETH send failed");
-        // }
     }
 
     function sell(address tokenAddress, uint256 amount) external {
@@ -133,7 +98,6 @@ contract TokenFactory is BancorFormula, ReentrancyGuard {
             reserveRatio,
             amount
         );
-        // uint256 receivedETH = getFundsNeeded(a, b, token.totalSupply(), amount);
         collateral[tokenAddress] -= receivedETH;
         // send ether
         (bool success, ) = msg.sender.call{value: receivedETH}(new bytes(0));

@@ -7,8 +7,8 @@ import "../src/TokenFactory.sol";
 contract CheckTokenCollateral is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address tokenFactoryAddress = 0x123F263A89AcbB9a16a2fbBC0Cc4c5dDdE7D826f;
-        address tokenAddress = 0x83DaCCDF45796D69DeDdD58eA1CD96395456c661;
+        address tokenFactoryAddress = 0xE885723dC412704F69bC4014f893046E5ff1481f;
+        address tokenAddress = 0xB5BcC87Ead5c6f7C1c1e323B6120AEc3C7d65f7c;
 
         vm.startBroadcast(deployerPrivateKey);
 

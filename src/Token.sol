@@ -7,9 +7,11 @@ contract Token is ERC20Upgradeable {
 
     function initialize(
         string memory name,
-        string memory symbol
+        string memory symbol,
+        uint256 initial_supply
     ) public initializer {
         owner = msg.sender;
+        _mint(msg.sender, initial_supply);
         __ERC20_init(name, symbol);
     }
 

@@ -17,7 +17,7 @@ contract DeployTokenFactory is Script {
         Token tokenImplementation = new Token();
 
         // Deploy TokenFactory with the address of the Token implementation
-        TokenFactory factory = new TokenFactory(address(tokenImplementation));
+        TokenFactory factory = new TokenFactory(address(tokenImplementation), 330000);
 
         console.log("Token implementation deployed at:", address(tokenImplementation));
         console.log("TokenFactory deployed at:", address(factory));
@@ -49,3 +49,8 @@ contract DeployTokenFactory is Script {
 // forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
 // Token implementation deployed at: 0xb638314b89538E85A2ec01a02921F0598B22c7A3
 // TokenFactory deployed at: 0x123F263A89AcbB9a16a2fbBC0Cc4c5dDdE7D826f
+
+// AMOY BANCOR TEST
+// forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
+//   Token implementation deployed at: 0xb157Fe42959949d9b58B880dFa4ec3E399F396A2
+//   TokenFactory deployed at: 0xa876aC551540d8c21F575ef2EBCe582c82d0E294
