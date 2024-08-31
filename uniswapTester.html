@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simplified Uniswap Interaction (Debug Mode)</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.0.umd.min.js"></script>
+</head>
+<body>
+    <h1>Simplified Uniswap Interaction (Debug Mode)</h1>
+    <button id="connectButton">Connect Wallet</button>
+    <div id="walletInfo" style="display:none;">
+        <p>Connected Address: <span id="userAddress"></span></p>
+        <p>Network: <span id="networkInfo"></span></p>
+        <input type="text" id="amountInput" placeholder="Amount of MATIC" value="0.0001">
+        <input type="number" id="slippageInput" placeholder="Slippage %" value="5" min="0" max="100" step="0.1">
+        <button id="checkSwapButton">Check Swap</button>
+        <button id="swapButton">Swap MATIC for Tokens</button>
+        <button id="getBalancesButton">Get Balances</button>
+    </div>
+    <pre id="debugLog" style="background-color: #f0f0f0; padding: 10px; white-space: pre-wrap; word-wrap: break-word;"></pre>
+
+    <script>
+        const UNISWAP_ROUTER_ADDRESS = '0x6a4e354aFa1075fE98771a72fa85F4F003006242';
+        const TOKEN_ADDRESS = '0x6b339d10Ee1dC7dD9c37A121a9b8aA57c61b5FC6';
+        const UNISWAP_ROUTER_ABI = [
+            "function WETH() external pure returns (address)",
+            "function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline) external payable returns (uint[] memory amounts)",
+            "function getAmountsOut(uint amountIn, address[] memory path) public view returns (uint[] memory amounts)"
+        ];
+        const ERC20_ABI = [
+            "function balanceOf(address account) external view returns (uint256)",
+            "function decimals() external view returns (uint8)"
+        ];
+
+        let provider, signer, uniswapRouter, tokenContract;
+
+        function debugLog(message) {
+            console.log(message);
+            const debugElement = document.getElementById('debugLog');
+            debugElement.textContent += message + '\n';
+        }
+
+        async function logErrorDetails(error) {
+            debugLog(`Error: ${error.message}`);
+            if (error.code) debugLog(`Error code: ${error.code}`);
+            if (error.data) debugLog(`Error data: ${JSON.stringify(error.data)}`);
+            if (error.stack) debugLog(`Stack trace: ${error.stack}`);
+            if (error.reason) debugLog(`Reason: ${error.reason}`);
+            
+            try {
+                const network = await provider.getNetwork();
+                debugLog(`Current network: ${network.name} (Chain ID: ${network.chainId})`);
+            } catch (networkError) {
+                debugLog(`Failed to get network info: ${networkError.message}`);
+            }
+        }
+
+        async function connectWallet() {
+            debugLog("Connecting wallet...");
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    throw new Error("MetaMask is not installed");
+                }
+
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+                const address = await signer.getAddress();
+                document.getElementById('userAddress').textContent = address;
+                document.getElementById('walletInfo').style.display = 'block';
+                document.getElementById('connectButton').style.display = 'none';
+
+                uniswapRouter = new ethers.Contract(UNISWAP_ROUTER_ADDRESS, UNISWAP_ROUTER_ABI, signer);
+                tokenContract = new ethers.Contract(TOKEN_ADDRESS, ERC20_ABI, signer);
+
+                const network = await provider.getNetwork();
+                document.getElementById('networkInfo').textContent = `Chain ID: ${network.chainId}`;
+
+                if (network.chainId !== 80002) {
+                    debugLog('Warning: Not connected to Amoy testnet. Please switch to Chain ID 80002.');
+                }
+
+                debugLog("Wallet connected successfully!");
+            } catch (error) {
+                await logErrorDetails(error);
+            }
+        }
+
+        async function checkSwap() {
+            debugLog("Checking swap...");
+            try {
+                const amountIn = document.getElementById('amountInput').value;
+                if (!amountIn || isNaN(amountIn)) {
+                    throw new Error('Please enter a valid amount.');
+                }
+
+                const wethAddress = await uniswapRouter.WETH();
+                debugLog(`WETH address: ${wethAddress}`);
+                const amountInWei = ethers.utils.parseEther(amountIn);
+                const path = [wethAddress, TOKEN_ADDRESS];
+
+                debugLog("Calling getAmountsOut...");
+                const amounts = await uniswapRouter.getAmountsOut(amountInWei, path);
+                debugLog(`getAmountsOut result: ${amounts.map(a => a.toString())}`);
+
+                const [, estimatedOutput] = amounts;
+                const tokenDecimals = await tokenContract.decimals();
+                const formattedOutput = ethers.utils.formatUnits(estimatedOutput, tokenDecimals);
+                debugLog(`Estimated output: ${formattedOutput} tokens`);
+            } catch (error) {
+                await logErrorDetails(error);
+            }
+        }
+
+        async function swapMaticForTokens() {
+            debugLog("Initiating swap...");
+            try {
+                const amountIn = document.getElementById('amountInput').value;
+                const slippage = document.getElementById('slippageInput').value;
+                if (!amountIn || isNaN(amountIn)) {
+                    throw new Error('Please enter a valid amount.');
+                }
+                if (!slippage || isNaN(slippage) || slippage < 0 || slippage > 100) {
+                    throw new Error('Please enter a valid slippage percentage (0-100).');
+                }
+
+                const wethAddress = await uniswapRouter.WETH();
+                const amountInWei = ethers.utils.parseEther(amountIn);
+                const path = [wethAddress, TOKEN_ADDRESS];
+                const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
+
+                debugLog(`Swap amount: ${amountIn} MATIC`);
+                debugLog(`Slippage: ${slippage}%`);
+                debugLog(`Deadline: ${new Date(deadline * 1000).toLocaleString()}`);
+
+                const [, estimatedOutput] = await uniswapRouter.getAmountsOut(amountInWei, path);
+                const amountOutMin = estimatedOutput.mul(100 - parseFloat(slippage)).div(100);
+                debugLog(`Minimum output amount: ${ethers.utils.formatEther(amountOutMin)} tokens`);
+
+                debugLog("Sending swap transaction...");
+                const tx = await uniswapRouter.swapExactETHForTokens(
+                    amountOutMin,
+                    path,
+                    await signer.getAddress(),
+                    deadline,
+                    { 
+                        value: amountInWei,
+                        gasLimit: 300000 // Set a high gas limit
+                    }
+                );
+
+                debugLog(`Swap transaction sent: ${tx.hash}`);
+                debugLog("Waiting for confirmation...");
+                const receipt = await tx.wait();
+                debugLog(`Swap successful! Gas used: ${receipt.gasUsed.toString()}`);
+            } catch (error) {
+                await logErrorDetails(error);
+            }
+        }
+
+        async function getBalances() {
+            debugLog("Getting balances...");
+            try {
+                const address = await signer.getAddress();
+                const maticBalance = await provider.getBalance(address);
+                debugLog(`MATIC balance: ${ethers.utils.formatEther(maticBalance)} MATIC`);
+
+                const tokenBalance = await tokenContract.balanceOf(address);
+                const tokenDecimals = await tokenContract.decimals();
+                debugLog(`Token balance: ${ethers.utils.formatUnits(tokenBalance, tokenDecimals)} tokens`);
+            } catch (error) {
+                await logErrorDetails(error);
+            }
+        }
+
+        document.getElementById('connectButton').addEventListener('click', connectWallet);
+        document.getElementById('checkSwapButton').addEventListener('click', checkSwap);
+        document.getElementById('swapButton').addEventListener('click', swapMaticForTokens);
+        document.getElementById('getBalancesButton').addEventListener('click', getBalances);
+    </script>
+</body>
+</html>

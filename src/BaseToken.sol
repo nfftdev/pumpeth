@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 import "@openzeppelin-contracts-upgradeable/contracts/token/ERC20/ERC20Upgradeable.sol";
 
-contract Token is ERC20Upgradeable {
+contract BaseToken is ERC20Upgradeable {
     address public owner;
 
     function initialize(

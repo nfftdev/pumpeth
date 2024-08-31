@@ -7,17 +7,18 @@ import "../src/Token.sol";
 
 contract DeployTokenFactory is Script {
     function run() external {
+        address baseTokenAddress = 0xbBE4a0773d1B0d099881c7875d1e79046a5401Cd;
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
 
         vm.startBroadcast(deployerPrivateKey);
-        uint256 gasPrice = 30 gwei;
-        vm.txGasPrice(gasPrice);
+        // uint256 gasPrice = 30 gwei;
+        // vm.txGasPrice(gasPrice);
 
         // Deploy the Token implementation
         Token tokenImplementation = new Token();
 
         // Deploy TokenFactory with the address of the Token implementation
-        TokenFactory factory = new TokenFactory(address(tokenImplementation), 330000);
+        TokenFactory factory = new TokenFactory(address(tokenImplementation), baseTokenAddress);
 
         console.log("Token implementation deployed at:", address(tokenImplementation));
         console.log("TokenFactory deployed at:", address(factory));
@@ -54,3 +55,13 @@ contract DeployTokenFactory is Script {
 // forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
 //   Token implementation deployed at: 0xb157Fe42959949d9b58B880dFa4ec3E399F396A2
 //   TokenFactory deployed at: 0xa876aC551540d8c21F575ef2EBCe582c82d0E294
+
+// AMOY BASE TOKEN TEST
+// forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
+//   Token implementation deployed at: 0x7ebcFD243999B4fFE76064e3FF052b49A784f3Bb
+//   TokenFactory deployed at: 0xC76Ce18B4bfcCeC0dA5F9126C0F823ef672161A6
+
+// AMOY BASE TOKEN TICKLE
+// forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
+//   Token implementation deployed at: 0x4DE9aB09Dc05C84BC68c00221053F5E59aD523eb
+//   TokenFactory deployed at: 0xd7E69A3C1B4AFf7E3CD070491845b913b11C632D

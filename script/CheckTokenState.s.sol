@@ -7,8 +7,8 @@ import "../src/TokenFactory.sol";
 contract CheckTokenState is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address tokenFactoryAddress = 0xa876aC551540d8c21F575ef2EBCe582c82d0E294;
-        address tokenAddress = 0xb487f7aA4d5DE24b217e73AE79d63B2066c15E6b;
+        address tokenFactoryAddress = 0xC76Ce18B4bfcCeC0dA5F9126C0F823ef672161A6;
+        address tokenAddress = 0xC02756E624412FB231082fd015a559363919cf73;
 
         vm.startBroadcast(deployerPrivateKey);
 
