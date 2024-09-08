@@ -131,3 +131,15 @@
     </script>
 </body>
 </html>
+
+<!-- function getAmountOut(
+        uint256 totalSupply,
+        uint256 amountSpent
+) public pure returns (uint256 deltaX) {
+    uint256 public a = 10000000000000;
+    uint256 public b = 100000000;
+    
+    uint256 exp_b_x0 = uint256((int256(b.mulWad(totalSupply))).expWad());
+    uint256 exp_b_x1 = exp_b_x0 + amountSpent.fullMulDiv(b, a);
+    deltaX = uint256(int256(exp_b_x1).lnWad()).divWad(b) - totalSupply;
+} -->

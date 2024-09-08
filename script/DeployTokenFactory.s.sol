@@ -7,9 +7,10 @@ import "../src/Token.sol";
 
 contract DeployTokenFactory is Script {
     function run() external {
-        address baseTokenAddress = 0xbBE4a0773d1B0d099881c7875d1e79046a5401Cd;
+        address oracle = 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3;
+        address baseTokenAddress = 0xEDd85881AD7D3CaF438c27Bc07E9af20010AaADe;
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-
+        
         vm.startBroadcast(deployerPrivateKey);
         // uint256 gasPrice = 30 gwei;
         // vm.txGasPrice(gasPrice);
@@ -18,7 +19,7 @@ contract DeployTokenFactory is Script {
         Token tokenImplementation = new Token();
 
         // Deploy TokenFactory with the address of the Token implementation
-        TokenFactory factory = new TokenFactory(address(tokenImplementation), baseTokenAddress);
+        TokenFactory factory = new TokenFactory(address(tokenImplementation), baseTokenAddress, oracle);
 
         console.log("Token implementation deployed at:", address(tokenImplementation));
         console.log("TokenFactory deployed at:", address(factory));
@@ -44,7 +45,9 @@ contract DeployTokenFactory is Script {
 // USING THE PARAM CURVE FINDER
 //  Token implementation deployed at: 0xcc1fCBbD537e411154c61340E81B6C971805c499
 //  TokenFactory deployed at: 0x2E470997CAc6cA04674C8C59E4c51BbEBcF22E83
-
+// WITH ORACLE:
+//   Token implementation deployed at: 0x1BB6a7786f8AC4D050F38F97303B0f3d1C101DcF
+//   TokenFactory deployed at: 0x0Db0f5F0A855F70406e9644Ab004A161BF19f29C
 
 // AMOY TESING
 // forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
@@ -65,3 +68,11 @@ contract DeployTokenFactory is Script {
 // forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
 //   Token implementation deployed at: 0x4DE9aB09Dc05C84BC68c00221053F5E59aD523eb
 //   TokenFactory deployed at: 0xd7E69A3C1B4AFf7E3CD070491845b913b11C632D
+
+// SEPOLIA BASE TOKEN TICKLE
+// forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $SEPOLIA_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
+// Token implementation deployed at: 0x959BAcb63BFc583Dac915c7E6ef3FC5DBd1FD635
+// TokenFactory deployed at: 0xBE27aadB0e1907A83D9b94b38b5cc7fC7B08fdC7
+
+// ETHEREUM BASE TOKEN TICKLE
+// forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $ETHEREUM_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
