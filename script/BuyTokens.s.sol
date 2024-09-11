@@ -7,8 +7,8 @@ import "../src/TokenFactory.sol";  // Import your Token contract
 contract BuyTokens is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address tokenFactoryAddress = 0x0Db0f5F0A855F70406e9644Ab004A161BF19f29C;
-        address tokenAddress = 0xCc07043DB3192A0910f093A344F639B384594a55;
+        address tokenFactoryAddress = 0x1C7d9FBd1d20656520FD914E420E3bc2d25Ed747;
+        address tokenAddress = 0x0A4E502b3E5FA98DC43E5Dd1bb94e3bbbaA6F468;
         uint256 amountToSpend = 1 ether; // 2 * 10**18; // 0.1 MATIC + .012000000000000001
 
         vm.startBroadcast(deployerPrivateKey);

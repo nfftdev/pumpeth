@@ -7,9 +7,9 @@ import "../src/BaseToken.sol";  // Import your Token contract
 contract AllowFactoryToSpendBase is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address tokenFactoryAddress = 0xC76Ce18B4bfcCeC0dA5F9126C0F823ef672161A6;
-        address baseTokenAddress = 0x6b339d10Ee1dC7dD9c37A121a9b8aA57c61b5FC6;
-        uint256 amountToSpend = 2 ether; 
+        address tokenFactoryAddress = 0x1C7d9FBd1d20656520FD914E420E3bc2d25Ed747;
+        address baseTokenAddress = 0xf985a23edd3982c759AA7a027e70275Ae003ECEc;
+        uint256 amountToSpend = 1 ether;
 
         vm.startBroadcast(deployerPrivateKey);
 

@@ -8,12 +8,15 @@ contract CreateAToken is Script {
     function run() external {
         address factoryAddress = 0xC76Ce18B4bfcCeC0dA5F9126C0F823ef672161A6;
         TokenFactory factory = TokenFactory(factoryAddress);
+        uint256 fundingGoal = 6e25;
+        uint256 a = 195_647_053_437_083;
+        uint256 b = 2_500_000_000;
 
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
         // Interact with your contract
-        address newToken = factory.createToken("BaseHIT", "BASEHIT");
+        address newToken = factory.createToken("BaseHIT", "BASEHIT", fundingGoal, a, b);
         console.log("New token created at:", newToken);
 
         vm.stopBroadcast();

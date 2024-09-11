@@ -7,8 +7,8 @@ import "../src/Token.sol";
 
 contract DeployTokenFactory is Script {
     function run() external {
-        address oracle = 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3;
-        address baseTokenAddress = 0xEDd85881AD7D3CaF438c27Bc07E9af20010AaADe;
+        // address oracle = 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3;
+        address baseTokenAddress = 0xf985a23edd3982c759AA7a027e70275Ae003ECEc;
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         
         vm.startBroadcast(deployerPrivateKey);
@@ -19,7 +19,7 @@ contract DeployTokenFactory is Script {
         Token tokenImplementation = new Token();
 
         // Deploy TokenFactory with the address of the Token implementation
-        TokenFactory factory = new TokenFactory(address(tokenImplementation), baseTokenAddress, oracle);
+        TokenFactory factory = new TokenFactory(address(tokenImplementation), baseTokenAddress);
 
         console.log("Token implementation deployed at:", address(tokenImplementation));
         console.log("TokenFactory deployed at:", address(factory));
@@ -27,7 +27,15 @@ contract DeployTokenFactory is Script {
         vm.stopBroadcast();
     }
 }
+//source .env
 //forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $POLYGON_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
+//forge inspect TokenFactory abi > tokenFactory.abi
+// NEWEST WITH aConstants and bConstants
+//   Token implementation deployed at: 0x1630803Cd85BeA09d48f3C9a2963734852383830
+//   TokenFactory deployed at: 0x1C7d9FBd1d20656520FD914E420E3bc2d25Ed747
+
+
+
 // == Logs ==
 //   Token implementation deployed at: 0xb123d9872fbBCd0a15ff63F78fD14e226183C4E6
 //   TokenFactory deployed at: 0x72Bb5e8c5FE4aAbE11F4f80014DE36C1129c53b2

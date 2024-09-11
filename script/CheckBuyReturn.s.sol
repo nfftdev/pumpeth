@@ -7,8 +7,8 @@ import "../src/TokenFactory.sol";  // Import your Token contract
 contract CheckBuyReturn is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address tokenFactoryAddress = 0x0Db0f5F0A855F70406e9644Ab004A161BF19f29C;
-        address tokenAddress = 0xCc07043DB3192A0910f093A344F639B384594a55;
+        address tokenFactoryAddress = 0x1C7d9FBd1d20656520FD914E420E3bc2d25Ed747;
+        address tokenAddress = 0x0A4E502b3E5FA98DC43E5Dd1bb94e3bbbaA6F468;
         // address tokenFactoryAddress = 0x72Bb5e8c5FE4aAbE11F4f80014DE36C1129c53b2;
         // address tokenAddress = 0xDF42294380B76723697BB691F8ac12b2Ca047Ee6;
         // address tokenFactoryAddress = 0x183dfbd4e3880457Bed73D143fBeaFa24d234531;

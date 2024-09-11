@@ -25,7 +25,7 @@ contract CreateBaseTokenSwap is Script {
         address pair = createLiquilityPool(newToken);
         uint256 liquidity = addLiquidity(newToken, initialNewTokenLiquidity, initialNativeTokenLiquidity);
         
-        console.log("Swap created at:", address(pair));
+        console.log("Swap created at:", address(pair), liquidity);
 
         vm.stopBroadcast();
     }

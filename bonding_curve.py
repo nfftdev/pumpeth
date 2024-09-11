@@ -54,24 +54,42 @@ def get_total_funds(a, b, x):
 
 def calc_a_from_b(b, delta_x, delta_y):
     x = mul_wad(b, delta_x)
-    print(f"x: {x/WAD}")
+    # print(f"x: {x/WAD}")
     exp_term = exp_wad(x)
-    print(f"exp_term: {exp_term/WAD}")
+    # print(f"exp_term: {exp_term/WAD}")
     a = full_mul_div(delta_y, b, exp_term - 1 * WAD)
     return a
 
-
 if __name__ == "__main__":
-    b = 1_000_000_000 # 10^
-    delta_x = 800_000_000 * WAD  # 800 M
-    delta_y = 20 * WAD
+    # b = 10_000_000_000 # 10^
+    # delta_x = 800_000_000 * WAD  # 800 M
+    # delta_y = 3_000_000 * WAD
+    b = 2_500_000_000  # 10^-9
+    delta_z = 1_000_000_000 * WAD
+    delta_x = delta_z * 4 / 5
+    delta_y = 5000 * WAD
+
     a = int(calc_a_from_b(b, delta_x, delta_y)) + 1
     print(f"a = {a}")
+    print(f"b = {b}")
 
     all_y = getFundsNeeded(a, b, 0, delta_x)
     print(f"all_y = {all_y / WAD}")
     all_x = getAmountOut(a, b, 0, delta_y)
     print(f"all_x = {int(all_x)}")
+
+#  ORIG 10 067 256 025 238 ... 1 631 932 441 900  ... 10 000 000 000
+# if __name__ == "__main__":
+#     b = 1_000_000_000 # 10^
+#     delta_x = 800_000_000 * WAD  # 800 M
+#     delta_y = 20 * WAD
+#     a = int(calc_a_from_b(b, delta_x, delta_y)) + 1
+#     print(f"a = {a}")
+
+#     all_y = getFundsNeeded(a, b, 0, delta_x)
+#     print(f"all_y = {all_y / WAD}")
+#     all_x = getAmountOut(a, b, 0, delta_y)
+#     print(f"all_x = {int(all_x)}")
 
     # amounts = []
     # step = 10_000_000 * WAD

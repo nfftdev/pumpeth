@@ -20,12 +20,10 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
     uint256 public constant MAX_SUPPLY = 10 ** 9 * 10 ** 18;
     uint256 public constant INITIAL_SUPPLY = (MAX_SUPPLY * 1) / 5;
     uint256 public constant FUNDING_SUPPLY = (MAX_SUPPLY * 4) / 5;
-    // uint256 public constant FUNDING_GOAL = 10 ** 6 * 10 ** 18; // 1m Base Tokens
-    uint256 public fundingGoal;
 
-    uint256 public a = 10000000000000;
-    uint256 public b = 100000000;
-
+    mapping(address => uint256) public aConstants;
+    mapping(address => uint256) public bConstants;
+    mapping(address => uint256) public fundingGoals;
     mapping(address => TokenState) public tokens;
     mapping(address => uint256) public collateral;
     address public immutable tokenImplementation;
@@ -35,37 +33,32 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
     address public constant UNISWAP_V2_FACTORY = 0x9e5A52f57b3038F1B8EeE45F28b3C1967e22799C;
     address public constant UNISWAP_V2_ROUTER = 0xedf6066a2b290C185783862C7F4776A2C8077AD1;
 
-    // ETHEREUM MAINNET
-    // address public constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
-    // address public constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
-
     // POLYGON AMOY
     // address public constant UNISWAP_V2_FACTORY = 0xeD04530614eA831d407bD916aF0625FC0B17f062;
     // address public constant UNISWAP_V2_ROUTER = 0x6a4e354aFa1075fE98771a72fa85F4F003006242;
 
-    address public oracle;
+    // ETHEREUM MAINNET
+    // address public constant UNISWAP_V2_FACTORY = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    // address public constant UNISWAP_V2_ROUTER = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
 
-    modifier onlyOracle() {
-        require(msg.sender == oracle, "Not authorized");
-        _;
-    }
+    // ETHEREUM SEPOLIA
+    // address public constant UNISWAP_V2_FACTORY = 0x0227628f3F023bb0B980b67D528571c95c6DaC1c;
+    // address public constant UNISWAP_V2_ROUTER = 0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E;
 
-    constructor(address _tokenImplementation, address _baseToken, address _oracle) {
+    constructor(address _tokenImplementation, address _baseToken) {
         tokenImplementation = _tokenImplementation;
         baseToken = IERC20(_baseToken);
-        oracle = _oracle;
-        fundingGoal = 10 ** 6 * 10 ** 18;
-    }
-
-    function setFundingGoal(uint256 newFundingGoal) external onlyOracle {
-        fundingGoal = newFundingGoal;
+        // fundingGoal = 10 ** 6 * 10 ** 18;
     }
     
-    function createToken(string memory name, string memory symbol) public returns (address) {
+    function createToken(string memory name, string memory symbol, uint256 fundingGoal, uint256 a, uint256 b) public returns (address) {
         address tokenAddress = Clones.clone(tokenImplementation);
         Token token = Token(tokenAddress);
         token.initialize(name, symbol);
         tokens[tokenAddress] = TokenState.FUNDING;
+        fundingGoals[tokenAddress] = fundingGoal;
+        aConstants[tokenAddress] = a;
+        bConstants[tokenAddress] = b;
         return tokenAddress;
     }
 
@@ -74,7 +67,10 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
         require(baseTokenAmount > 0, "Base token amount not enough");
         Token token = Token(tokenAddress);
         uint256 valueToBuy = baseTokenAmount;
-
+        uint256 fundingGoal = fundingGoals[tokenAddress];
+        uint256 a = aConstants[tokenAddress];
+        uint256 b = bConstants[tokenAddress];
+        
         if (collateral[tokenAddress] + valueToBuy > fundingGoal) {
             valueToBuy = fundingGoal - collateral[tokenAddress];
         }
@@ -107,6 +103,8 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
         require(amount > 0, "Token not enough");
         Token token = Token(tokenAddress);
         token.burn(msg.sender, amount);
+        uint256 a = aConstants[tokenAddress];
+        uint256 b = bConstants[tokenAddress];
         uint256 receivedBaseToken = getFundsNeeded(a, b, token.totalSupply(), amount);
         collateral[tokenAddress] -= receivedBaseToken;
         require(baseToken.transfer(msg.sender, receivedBaseToken), "Base token transfer failed");
@@ -114,12 +112,16 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
 
     function calculateBuyReturn(address tokenAddress, uint256 baseTokenAmount) public view returns (uint256) {
         Token token = Token(tokenAddress);
+        uint256 a = aConstants[tokenAddress];
+        uint256 b = bConstants[tokenAddress];
         uint256 amount = getAmountOut(a, b, token.totalSupply(), baseTokenAmount);
         return amount;
     }
 
     function calculateSellReturn(address tokenAddress, uint256 tokenAmount) public view returns (uint256) {
         Token token = Token(tokenAddress);
+        uint256 a = aConstants[tokenAddress];
+        uint256 b = bConstants[tokenAddress];
         uint256 receivedBaseToken = getFundsNeeded(a, b, token.totalSupply(), tokenAmount);
         return receivedBaseToken;
     }
