@@ -9,7 +9,7 @@ contract AllowFactoryToSpendBase is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address tokenFactoryAddress = 0x1C7d9FBd1d20656520FD914E420E3bc2d25Ed747;
         address baseTokenAddress = 0xf985a23edd3982c759AA7a027e70275Ae003ECEc;
-        uint256 amountToSpend = 1 ether;
+        uint256 amountToSpend = 100000 ether;
 
         vm.startBroadcast(deployerPrivateKey);
 
@@ -25,3 +25,4 @@ contract AllowFactoryToSpendBase is Script {
 }
 //forge script script/AllowFactoryToSpendBase.s.sol:AllowFactoryToSpendBase --rpc-url $POLYGON_RPC_URL --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 --broadcast -vvvv
 //forge script script/AllowFactoryToSpendBase.s.sol:AllowFactoryToSpendBase --rpc-url $POLYGON_AMOY_RPC_URL --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 --broadcast -vvvv
+//10000000000000000000000n

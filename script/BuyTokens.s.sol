@@ -8,8 +8,8 @@ contract BuyTokens is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address tokenFactoryAddress = 0x1C7d9FBd1d20656520FD914E420E3bc2d25Ed747;
-        address tokenAddress = 0x0A4E502b3E5FA98DC43E5Dd1bb94e3bbbaA6F468;
-        uint256 amountToSpend = 1 ether; // 2 * 10**18; // 0.1 MATIC + .012000000000000001
+        address tokenAddress = 0xdBe7a1C61EF4d1BA39B1CC56f89cB7F4D587Cefc;
+        uint256 amountToSpend = 100000 ether; // 2 * 10**18; // 0.1 MATIC + .012000000000000001
 
         vm.startBroadcast(deployerPrivateKey);
 
