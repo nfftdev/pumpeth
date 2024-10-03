@@ -6,7 +6,7 @@ import "../src/TokenFactory.sol";
 
 contract CreateAToken is Script {
     function run() external {
-        address factoryAddress = 0xC76Ce18B4bfcCeC0dA5F9126C0F823ef672161A6;
+        address factoryAddress = 0x7C26472c955179972866d5200AF116E4A1f082d2;//0xC76Ce18B4bfcCeC0dA5F9126C0F823ef672161A6;
         TokenFactory factory = TokenFactory(factoryAddress);
         uint256 fundingGoal = 6e25;
         uint256 a = 195_647_053_437_083;
@@ -16,12 +16,16 @@ contract CreateAToken is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Interact with your contract
-        address newToken = factory.createToken("BaseHIT", "BASEHIT", fundingGoal, a, b);
+        address newToken = factory.createToken("GTEST232", "GETEST232", fundingGoal, a, b, 10 ether);
         console.log("New token created at:", newToken);
 
         vm.stopBroadcast();
     }
 }
+
+//0x943906195923F5dC79a55Ea322E0E785d48f820D
+//forge script script/CreateAToken.s.sol:CreateAToken --rpc-url $POLYGON_RPC_URL --broadcast --sender 0x943906195923F5dC79a55Ea322E0E785d48f820D -vvvv
+
 ////forge script script/CreateAToken.s.sol:CreateAToken --rpc-url $POLYGON_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
 //forge script script/CreateAToken.s.sol:CreateAToken --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
 //forge script script/CreateAToken.s.sol:CreateAToken --rpc-url $POLYGON_AMOY_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 --gas-price -vvvv

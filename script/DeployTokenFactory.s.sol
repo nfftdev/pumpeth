@@ -30,6 +30,17 @@ contract DeployTokenFactory is Script {
 //source .env
 //forge script script/DeployTokenFactory.s.sol:DeployTokenFactory --rpc-url $POLYGON_RPC_URL --broadcast --sender 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3 -vvvv
 //forge inspect TokenFactory abi > tokenFactory.abi
+
+// WITH emait tokenCreated
+// == Logs ==
+//   Token implementation deployed at: 0xbC2D8e81E1A4ae0e163fC604B8497AD290ef1CDe
+//   TokenFactory deployed at: 0x7C26472c955179972866d5200AF116E4A1f082d2
+
+// WITH initialPurchase as part of createToken
+// == Logs ==
+//   Token implementation deployed at: 0x83b54f53203C35d236C873f23A9413dfB8a1de33
+//   TokenFactory deployed at: 0x82Bb4E38E8a6373Cb32d54bD343A13633a75D30e
+
 // NEWEST WITH aConstants and bConstants
 //   Token implementation deployed at: 0x1630803Cd85BeA09d48f3C9a2963734852383830
 //   TokenFactory deployed at: 0x1C7d9FBd1d20656520FD914E420E3bc2d25Ed747

@@ -8,7 +8,7 @@ contract CheckTotalSupply is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         // address tokenFactoryAddress = 0xC76Ce18B4bfcCeC0dA5F9126C0F823ef672161A6;
-        address tokenAddress = 0x6b339d10Ee1dC7dD9c37A121a9b8aA57c61b5FC6;
+        address tokenAddress = 0xfE5DC5E2ce30b90B0EaFDE2E0D1EdfD2FB0acf8C;
         
         vm.startBroadcast(deployerPrivateKey);
 
@@ -23,3 +23,4 @@ contract CheckTotalSupply is Script {
 }
 //forge script script/CheckTotalSupply.s.sol:CheckTotalSupply --rpc-url $POLYGON_RPC_URL --broadcast -vvvv
 //forge script script/CheckTotalSupply.s.sol:CheckTotalSupply --rpc-url $POLYGON_AMOY_RPC_URL --broadcast -vvvv
+//63,022,390 4536241279600000000

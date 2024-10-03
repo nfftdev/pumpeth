@@ -7,9 +7,9 @@ import "../src/Token.sol";
 contract MintTokens is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address tokenAddress = 0xf985a23edd3982c759AA7a027e70275Ae003ECEc;
+        address tokenAddress = 0xDE59B204d83E7F0Dd580439912EB28EC9333c24e;
         address recipient = 0xF51F97A20C4e00fd4d8F85462cf344Bb152B10a3;
-        uint256 amountToMint = 1000000000 * 10**18; // 1000 tokens, adjust decimals as needed
+        uint256 amountToMint = 1000000 * 10**18; // 1000 tokens, adjust decimals as needed
 
         vm.startBroadcast(deployerPrivateKey);
 

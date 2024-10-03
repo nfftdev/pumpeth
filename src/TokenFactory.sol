@@ -10,6 +10,8 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {BondingCurve} from "./BondingCurve.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+event TokenCreated(address indexed tokenAddress, string name, string symbol);
+
 contract TokenFactory is BondingCurve, ReentrancyGuard {
     enum TokenState {
         NOT_CREATED,
@@ -51,7 +53,7 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
         // fundingGoal = 10 ** 6 * 10 ** 18;
     }
     
-    function createToken(string memory name, string memory symbol, uint256 fundingGoal, uint256 a, uint256 b) public returns (address) {
+    function createToken(string memory name, string memory symbol, uint256 fundingGoal, uint256 a, uint256 b, uint256 initialPurchase) public returns (address) {
         address tokenAddress = Clones.clone(tokenImplementation);
         Token token = Token(tokenAddress);
         token.initialize(name, symbol);
@@ -59,10 +61,14 @@ contract TokenFactory is BondingCurve, ReentrancyGuard {
         fundingGoals[tokenAddress] = fundingGoal;
         aConstants[tokenAddress] = a;
         bConstants[tokenAddress] = b;
+        if (initialPurchase > 0){
+            buy(tokenAddress, initialPurchase);
+        }
+        emit TokenCreated(tokenAddress, name, symbol);
         return tokenAddress;
     }
 
-    function buy(address tokenAddress, uint256 baseTokenAmount) external nonReentrant {
+    function buy(address tokenAddress, uint256 baseTokenAmount) public nonReentrant {
         require(tokens[tokenAddress] == TokenState.FUNDING, "Token not found");
         require(baseTokenAmount > 0, "Base token amount not enough");
         Token token = Token(tokenAddress);
